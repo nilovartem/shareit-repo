@@ -6,8 +6,8 @@ import os
 def db_connect():
     connection = psycopg2.connect(host='localhost',
                                 database='shareit_db',
-                                user='postgres', 
-                                password='!qazxsw@')
+                                user=os.environ['POSTGRES_USERNAME'], 
+                                password=os.environ['POSTGRES_PASSWORD'])
     return connection
 
 app = Flask(__name__)
