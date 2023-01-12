@@ -16,11 +16,6 @@ app.config['CORS_HEADERS'] = 'Content-Type'
 
 connection = db_connect()
 cursor = connection.cursor()
-cursor.execute("SELECT * FROM page;")
-print(cursor.fetchall())
-
-
-#пока что без БД
 
 links = [
     {
@@ -44,7 +39,13 @@ def home():
 @app.route("/shareit/api/v1.0/links", methods=['GET'])
 @cross_origin()
 def get_links():#возвращает все возможные ссылки из БД
-    return jsonify({'links': links})
+    cursor.execute("SELECT * FROM link;")
+    columns=['id','url','page_id']
+    results=[]
+    for row in cursor.fetchall():
+        results.append(dict(zip(columns,row)))
+    return jsonify({'links': results})
+
 #get link by id
 @app.route("/shareit/api/v1.0/links/<int:link_id>", methods=['GET'])
 @cross_origin()
@@ -77,8 +78,36 @@ def create_link():
     else:
         abort(400)
     return jsonify({'link': link}), 201#http created
-#handle error 404
+#create empty page(no db)
+@app.route("/shareit/api/v1.0/pages", methods=['POST'])
+def create_page():
+    if request.method == 'POST':
+        page = {
+            'id':0,
+            'url':'random_url_for test'
+        }
+    else:
+        abort(400)
+    return jsonify({'page': page}), 201
 
+@app.route("/shareit/api/v1.0/links/view/<string:page_url>", methods=['GET'])
+@cross_origin()
+def get_links_view(page_url):
+    print(page_url)
+    query = "SELECT * FROM page_links WHERE page_url=(%s);"
+    data = (page_url,)
+    cursor.execute(query,data)
+    if cursor.rowcount > 0:
+        columns=['id','url','page_id','page_url']
+        results=[]
+        for row in cursor.fetchall():
+            results.append(dict(zip(columns,row)))
+        print(results)
+        return make_response(jsonify(results), 200)
+    else:
+        abort(404)
+
+#handle error 404
 @app.errorhandler(404)
 def not_found(error):
     return make_response(jsonify({'error': 'Not found'}), 404)
