@@ -14,7 +14,7 @@ defineProps({
     <div class="adding">
       <input v-model="link" placeholder="Вставь ссылку!" autocomplete="url" type="text" autofocus="true">
       <input v-model="description" placeholder="Добавь описание" type="text">
-      <button v-on:click="addLink(link,description)">+</button>
+      <button v-on:click="createLink(link,description)">+</button>
     </div>
     <div>
       <h1>
@@ -59,6 +59,7 @@ button{
 </style>
 <script>
 import axios from 'axios';
+import { getTransitionRawChildren } from 'vue';
 
   export default {
     data(){
@@ -69,7 +70,7 @@ import axios from 'axios';
       }
     },
     methods: {
-      addLink (link,description) {
+      createLink (link,description) {
         console.log(link)
         console.log(description)
         const payload = {
@@ -90,8 +91,19 @@ import axios from 'axios';
           })       
       */
 
+      },
+      createPage(){
+        const path = "http://127.0.0.1:5000/shareit/api/v1.0/pages"
+        axios.post(path).then(
+          function (response){
+            console.log(response)
+          }
+        )
       }
     
+    },
+    created(){
+      this.createPage()
     }
   }
 </script>
