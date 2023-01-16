@@ -18,7 +18,7 @@ defineProps({
     </div>
     <div>
       <h1>
-        <a v-bind:href="hyperlink">{{hyperlink}}</a>
+        <a v-bind:href="hyperlink">{{page_url}}</a>
       </h1>
     </div>
   </div>
@@ -66,7 +66,9 @@ import { getTransitionRawChildren } from 'vue';
       return{
         link: null,
         description: null,
-        all_links:''
+        all_links:'',
+        page_id:null,
+        page_url:null
       }
     },
     methods: {
@@ -75,7 +77,8 @@ import { getTransitionRawChildren } from 'vue';
         console.log(description)
         const payload = {
           'url': link,
-          'description': description
+          'description': description,
+          'page_id': this.page_id
         }
         const path = "http://127.0.0.1:5000/shareit/api/v1.0/links"
         
@@ -92,18 +95,31 @@ import { getTransitionRawChildren } from 'vue';
       */
 
       },
-      createPage(){
+      async createPage(){
         const path = "http://127.0.0.1:5000/shareit/api/v1.0/pages"
-        axios.post(path).then(
-          function (response){
-            console.log(response)
-          }
-        )
+        let data = []
+        try{
+              const response = await axios.post(path)
+              console.log(response.status)
+              data = response.data
+              console.log(data)
+            }
+        catch (error){
+           console.error(error)
+            }            
+          return data
       }
     
     },
     created(){
-      this.createPage()
+      this.createPage().then(data=>{
+        this.page_id = data['id']
+        this.page_url = data['url']
+        console.log("page_id")
+        console.log("page_url")
+        console.log(this.page_id)
+        console.log(this.page_url)        
+      })
     }
   }
 </script>
